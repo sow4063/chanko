@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<list key="EGit.KnownHosts">
+		<item value="bitbucket.org"/>
+		<item value="git.eclipse.org"/>
+		<item value="github.com"/>
+	</list>
+	<list key="RepositorySelectionPage.UsedUris">
+		<item value="https://github.com/sow4063/panera.git"/>
+	</list>
+	<list key="CommitDialog.authorValues">
+		<item value="sow4063 &lt;sow4063@gmail.com&gt;"/>
+	</list>
+	<list key="CommitDialog.committerValues">
+		<item value="sow4063 &lt;sow4063@gmail.com&gt;"/>
+	</list>
+	<section name="org.eclipse.egit.ui.internal.push.PushResultDialog.dialogBounds">
+		<item value="650" key="DIALOG_WIDTH"/>
+		<item value="1|.SF NS Text|11.0|0|COCOA|1|.SFNSText-Regular" key="DIALOG_FONT_NAME"/>
+		<item value="440" key="DIALOG_HEIGHT"/>
+		<item value="309" key="DIALOG_X_ORIGIN"/>
+		<item value="80" key="DIALOG_Y_ORIGIN"/>
+		<list key="sashWeights">
+			<item value="600"/>
+			<item value="400"/>
+		</list>
+	</section>
+	<section name="GitCommitMessageComponent">
+		<list key="/Users/water4063/.git">
+			<item value="false"/>
+			<item value="sow4063 &lt;sow4063@gmail.com&gt;"/>
+			<item value="initial version."/>
+			<item value="sow4063 &lt;sow4063@gmail.com&gt;"/>
+			<item value="05e478c1655d406a87371c8ce53f79a84bca5afe"/>
+		</list>
+		<list key="/Users/water4063/git/panera/.git">
+			<item value="false"/>
+			<item value="sow4063 &lt;sow4063@gmail.com&gt;"/>
+			<item value="2016.7.29. PaneraCli init."/>
+			<item value="sow4063 &lt;sow4063@gmail.com&gt;"/>
+			<item value="1e7790010c8e499866a9cfb6e5d7087b599828ad"/>
+		</list>
+		<list key="/Users/water4063/git/panera/PaneraCli/.git">
+			<item value="empty"/>
+		</list>
+	</section>
+	<section name="org.eclipse.egit.ui.internal.staging.StagingView">
+		<item value="500,500" key="STAGING_SASH_FORM_WEIGHT"/>
+		<item value="false" key="sortItemState"/>
+		<item value="500,500" key="HORIZONTAL_SASH_FORM_WEIGHT"/>
+	</section>
+</section>

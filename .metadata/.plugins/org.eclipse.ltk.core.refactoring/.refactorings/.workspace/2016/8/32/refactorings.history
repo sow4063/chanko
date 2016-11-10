@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;PaneraCli&apos;" deleteContents="false" description="Delete resource &apos;PaneraCli&apos;" element1="/PaneraCli" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1470028648563"/>
+</session>
