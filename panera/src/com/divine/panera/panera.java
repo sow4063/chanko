@@ -95,14 +95,11 @@ public class panera
 			
 			String strOS = System.getProperty("os.name").toLowerCase();
 			
-			String pconfig = "";
+			String pconfig = System.getProperty("panera.config").toLowerCase();
 			
-			if( isWindows(strOS) ) {
-				pconfig = "C:/sbmsLib/conf/panera.config";
-			} 
-			else {
-				pconfig = "/Users/water4063/Documents/secure_sw/panera/panera.config";
-			}
+		    if( pconfig == null) {
+                System.out.println("need file path for panera.config");
+		    }
 			
 			System.out.println( strOS + " : " + pconfig );
 					

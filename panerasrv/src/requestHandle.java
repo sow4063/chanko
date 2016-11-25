@@ -58,14 +58,20 @@ public class requestHandle implements Runnable {
 			
 			String strOS = System.getProperty("os.name").toLowerCase();
 			
-			String pconfig = "";
+            String pconfig = System.getProperty("panera.config").toLowerCase();
 			
-			if( ( strOS.indexOf("win") >= 0 ) ) {
-				pconfig = "C:/sbmsLib/conf/panerasrv.config";
-			} 
-			else {
-				pconfig = "/Users/water4063/Documents/secure_sw/panerasrv/panerasrv.config";
-			}
+		    if( pconfig == null) {
+                System.out.println("need file path for panera.config");
+		    }
+			
+//			String pconfig = "";
+//			
+//			if( ( strOS.indexOf("win") >= 0 ) ) {
+//				pconfig = "C:/sbmsLib/conf/panerasrv.config";
+//			} 
+//			else {
+//				pconfig = "/Users/water4063/Documents/secure_sw/panerasrv/panerasrv.config";
+//			}
 			
 			System.out.println( strOS + " : " + pconfig );
 					

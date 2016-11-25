@@ -1,1 +1,1 @@
-java -Dfile.encoding=UTF-8 -classpath /Users/water4063/Documents/workspace/paneracli/bin:/Users/water4063/Documents/workspace/paneracli/lib/panera.jar paneracli
+java -Dpanera.config=/Users/water4063/Documents/secure_sw/panera/panera.config -Dfile.encoding=UTF-8 -classpath /Users/water4063/Documents/workspace/paneracli/bin:/Users/water4063/Documents/workspace/paneracli/lib/panera.jar paneracli
