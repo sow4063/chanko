@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<item value="/Library/Java/JavaVirtualMachines/jdk1.8.0_112.jdk/Contents/Home/lib" key="org.eclipse.jdt.ui.lastextjar"/>
+	<item value="/Users/water4063/Documents/workspace/panerasrv/lib" key="org.eclipse.jdt.ui.lastextjar"/>
 	<item value="1" key="org.eclipse.jdt.ui.last.selected.jre.kind2"/>
 	<item value="Java SE 6 [1.6.0_65-b14-468]" key="org.eclipse.jdt.ui.last.selected.project.jre"/>
+	<item value="480,442" key="UserLibraryLoadSaveDialog.size"/>
 	<section name="ProblemSeveritiesConfigurationBlock">
 		<item value="false" key="expanded2"/>
 		<item value="false" key="expanded1"/>

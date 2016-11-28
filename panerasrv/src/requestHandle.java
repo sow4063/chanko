@@ -28,7 +28,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-//import com.divine.panera.panera;
+import org.apache.logging.log4j.LogManager;
 
 public class requestHandle implements Runnable {
 
@@ -47,9 +47,12 @@ public class requestHandle implements Runnable {
 	
 	public static final String DELIMITER = "#";
 	
+	private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger("panerasrv");
+	
 	public int readConfig() throws IOException {
 		
 		System.out.println("readConfig begin.");
+		logger.info("readConfig begin.");
 		
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -63,17 +66,9 @@ public class requestHandle implements Runnable {
 		    if( pconfig == null) {
                 System.out.println("need file path for panera.config");
 		    }
-			
-//			String pconfig = "";
-//			
-//			if( ( strOS.indexOf("win") >= 0 ) ) {
-//				pconfig = "C:/sbmsLib/conf/panerasrv.config";
-//			} 
-//			else {
-//				pconfig = "/Users/water4063/Documents/secure_sw/panerasrv/panerasrv.config";
-//			}
-			
+						
 			System.out.println( strOS + " : " + pconfig );
+			logger.info( strOS + " : " + pconfig );
 					
 			input = new FileInputStream( pconfig );
 
@@ -101,10 +96,23 @@ public class requestHandle implements Runnable {
 			System.out.println( "mysql_driver = " + mysql_driver );
 			System.out.println( "mysql_url = " + mysql_url );
 			System.out.println( "mysql_userinfo = " + mysql_userinfo );
+			
+			logger.info( "serverIP = " + serverIP );
+			logger.info( "serverPort = " + serverPort );
+			logger.info( "workdir = " + workdir );
+			logger.info( "logPath = " + logPath );
+			logger.info( "cachePath = " + cachePath );
+			logger.info( "storagePath = " + storagePath );
+			
+			logger.info( "mysql_driver = " + mysql_driver );
+			logger.info( "mysql_url = " + mysql_url );
+			logger.info( "mysql_userinfo = " + mysql_userinfo );
+			
 
 		} 
 		catch( IOException ex ) {
 			ex.printStackTrace();
+			logger.error("IOException.");
 			return 0;
 		} 
 		finally {
@@ -114,17 +122,21 @@ public class requestHandle implements Runnable {
 				} 
 				catch( IOException e ) {
 					e.printStackTrace();
+					logger.info("IOException : input != null.");
 				}
 			}
 			
 		}
 		
 		System.out.println("readConfig end.");
+		logger.info("readConfig end.");
+		
 		return 1;
 	}
 
 	public requestHandle() throws IOException {
 		System.out.println("requestHandle() called.");
+		logger.info("requestHandle called.");
         readConfig();
     }
 	
@@ -134,6 +146,8 @@ public class requestHandle implements Runnable {
 	
     public requestHandle(Socket client) throws IOException {
     	System.out.println("requestHandle(Socket client) called.");
+    	logger.info("requestHandle(Socket client) called.");
+    	
     	readConfig();
         this.clientSocket = client;
     }
@@ -183,6 +197,7 @@ public class requestHandle implements Runnable {
                         
                     default:
                         System.out.println("Incorrect command received.");
+                        logger.error("Incorrect command received.");
                         break;
                 }
                 
@@ -192,23 +207,24 @@ public class requestHandle implements Runnable {
 
         } 
     	catch( IOException ex ) {
-            Logger.getLogger( requestHandle.class.getName()).log( Level.SEVERE, null, ex );
+            logger.error(ex.getMessage());
         } catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
     	
     }
     
     public String encryptFileName(String str) {
 		
-		System.out.println("endcryptFileName begin.");
+		System.out.println("encryptFileName begin.");
+		logger.info("encryptFileName begin.");
 		
 		String encrypted = ""; 
 		
@@ -232,9 +248,11 @@ public class requestHandle implements Runnable {
 		catch(NoSuchAlgorithmException e){
 			e.printStackTrace(); 
 			encrypted = null; 
+			logger.error(e.getMessage());
 		}
 		
 		System.out.println("encryptFileName end.");
+		logger.info("encryptFileName end.");
 		
 		return encrypted;
 	}
@@ -242,6 +260,7 @@ public class requestHandle implements Runnable {
 public void selectFileInfo() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
     	
     	System.out.println("selectFileInfo begin.");
+    	logger.info("selectFileInfo begin.");
     	
     	try {
         	
@@ -261,6 +280,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 			createDate = arr[1];
 			
 			System.out.println("file info = " + fileName + "[" + createDate + "] received from the client");
+			logger.info("file info = " + fileName + "[" + createDate + "] received from the client");
             
             // save the received file info into database
             String result = "RET_OK";
@@ -276,6 +296,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 	            conn = DriverManager.getConnection( mysql_url + mysql_userinfo );
                 
 	            System.out.println("데이터 베이스 접속이 성공했습니다."); 
+	            logger.info("데이터 베이스 접속이 성공했습니다."); 
 	        
 	            // the mysql insert statement
 	            String query = " select encfilename, filePath from files where fileName = ? and createDate = ?";
@@ -296,6 +317,9 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 					System.out.println("encFileName : " + encFileName);
 					System.out.println("filePath    : " + filePath);
 					
+					logger.info("encFileName : " + encFileName);
+					logger.info("filePath    : " + filePath);
+					
 					result = encFileName + DELIMITER + filePath;
 
 				}
@@ -308,11 +332,13 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
                 System.out.println("SQLState: " + ex.getSQLState());
                 System.out.println("VendorError: " + ex.getErrorCode());
                 
+                logger.error("SQLException: " + ex.getMessage());
+                logger.error("SQLState: " + ex.getSQLState());
+                logger.error("VendorError: " + ex.getErrorCode());
+                
                 result = "RET_NG";
             }
               
-            //
-            
             // Sending the result to client.
             byte[] buffers = new byte[(int) result.length()];
             
@@ -327,24 +353,29 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
             clientData.close();
 
             System.out.println("sent the result [" + result + "] to the client.");
+            logger.info("sent the result [" + result + "] to the client.");
         } 
         catch( IOException ex ) {
             System.err.println("Client error. Connection closed.");
+            logger.error("Client error. Connection closed.");
         }
 
     	System.out.println("selectFileInfo end.");
+    	logger.info("selectFileInfo end.");
     }
 
 	
     public void saveFileInfo() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
     	
     	System.out.println("saveFileInfo begin.");
+    	logger.info("saveFileInfo begin.");
     	
     	try {
         	
             DataInputStream clientData = new DataInputStream( clientSocket.getInputStream() );
 
-            String fileInfo = in.readLine();//clientData.readUTF();
+            String fileInfo = in.readLine();
+            //clientData.readUTF();
             //clientData.close();
             
             String serverIP = "";
@@ -365,9 +396,11 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 			System.out.println("serverIP, serverPort = [" + serverIP + "," + serverPort + "]"); 
             System.out.println("file info = " + fileName + "[" + encryptedFileName + "]" + "[" + createDate + "] received from the client");
             
+            logger.info("serverIP, serverPort = [" + serverIP + "," + serverPort + "]"); 
+            logger.info("file info = " + fileName + "[" + encryptedFileName + "]" + "[" + createDate + "] received from the client");
+            
             // save the received file info into database
             String result = "RET_OK";
-            
 
             //
             try
@@ -380,28 +413,33 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 	            conn = DriverManager.getConnection( mysql_url + mysql_userinfo );
                 
                 
-	          System.out.println("데이터 베이스 접속이 성공했습니다."); 
+	            System.out.println("데이터 베이스 접속이 성공했습니다.");
+	            logger.info("데이터 베이스 접속이 성공했습니다.");
 	        
-	          // the mysql insert statement
-	          String query = " insert into files (filename, encfilename, filepath, createdate)" + " values (?, ?, ?, ?)";
+	            // the mysql insert statement
+	            String query = " insert into files (filename, encfilename, filepath, createdate)" + " values (?, ?, ?, ?)";
 	
-	          // create the mysql insert preparedstatement
-	          PreparedStatement preparedStmt = ((java.sql.Connection) conn).prepareStatement(query);
-	          preparedStmt.setString (1, fileName);
-	          preparedStmt.setString (2, encryptedFileName);
-	          preparedStmt.setString (3, serverIP + DELIMITER + serverPort);
-	          preparedStmt.setString (4, createDate);
+	            // create the mysql insert preparedstatement
+	            PreparedStatement preparedStmt = ((java.sql.Connection) conn).prepareStatement(query);
+	            preparedStmt.setString (1, fileName);
+	            preparedStmt.setString (2, encryptedFileName);
+	            preparedStmt.setString (3, serverIP + DELIMITER + serverPort);
+	            preparedStmt.setString (4, createDate);
 	          
-	          // execute the preparedstatement
-	          preparedStmt.execute();
+	            // execute the preparedstatement
+	            preparedStmt.execute();
 	          
-              conn.close();
+                conn.close();
             }
             catch (SQLException ex) {
                 // handle any errors
                 System.out.println("SQLException: " + ex.getMessage());
                 System.out.println("SQLState: " + ex.getSQLState());
                 System.out.println("VendorError: " + ex.getErrorCode());
+                
+                logger.error("SQLException: " + ex.getMessage());
+                logger.error("SQLState: " + ex.getSQLState());
+                logger.error("VendorError: " + ex.getErrorCode());
                 
                 if( ex.getSQLState().equals("23000") )
                 	result = "RET_OK:23000";
@@ -425,17 +463,21 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
             clientData.close();
 
             System.out.println("sent the result [" + result + "] to the client.");
+            logger.info("sent the result [" + result + "] to the client.");
         } 
         catch( IOException ex ) {
             System.err.println("Client error. Connection closed.");
+            logger.error("Client error. Connection closed.");
         }
 
     	System.out.println("saveFileInfo end.");
+    	logger.info("saveFileInfo end.");
     }
     
 	public void receiveFile() {
 		
 		System.out.println("receiveFile begin.");
+		logger.info("receiveFile begin.");
 		
         try {
         	
@@ -445,7 +487,9 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 
             String fileName = clientData.readUTF();
             String encryptedFileName = encryptFileName(fileName);
+            
             System.out.println("encrypted file name = " + fileName + "[" + encryptedFileName + "]" );
+            logger.info("encrypted file name = " + fileName + "[" + encryptedFileName + "]" );
             
             OutputStream output = new FileOutputStream( encryptedFileName );
             
@@ -466,7 +510,9 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
             	// if not exist, make a new directory.
             	String date = new SimpleDateFormat("yyyyMMdd/").format(System.currentTimeMillis( ));
             	String strDir = storagePath + date;
+            	
             	System.out.println( "the storage path = " + strDir );
+            	logger.info( "the storage path = " + strDir );
             	
             	File dir = new File( strDir );
                 
@@ -476,41 +522,50 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
                 {
                   // creating the directory succeeded
                   System.out.println("directory was created successfully");
+                  logger.info("directory was created successfully");
                 }
                 else
                 {
                   // creating the directory failed
                   System.out.println("failed trying to create the directory");
+                  logger.info("failed trying to create the directory");
                 }
                 
          	    File afile =new File(encryptedFileName);
 
 	     	    String newFileName = strDir + encryptedFileName;
 	     	    if( afile.renameTo( new File( newFileName ) ) ) {
-	     		    System.out.println("File is moved successful!");
+	     		  System.out.println("File is moved successful!");
+	     		  logger.info("File is moved successful!");
 	     	    }
 	     	    else{
-	     	 	    System.out.println("File is failed to move! [" + newFileName + "]");
+	     	 	  System.out.println("File is failed to move! [" + newFileName + "]");
+	     	 	  logger.info("File is failed to move! [" + newFileName + "]");
 	     	    }
 
          	}
             catch(Exception e){
             	e.printStackTrace();
+            	logger.error(e.getMessage());
          	}
 
             System.out.println("File " + fileName + " received from client.");
+            logger.info("File " + fileName + " received from client.");
         } 
         catch( IOException ex ) {
             System.err.println("Client error. Connection closed.");
+            logger.error("Client error. Connection closed." + ex.getMessage());
         }
         
         System.out.println("receiveFile end.");
+        logger.info("receiveFile end.");
         
     }
 
     public void sendFile(String fileName) {
     	
     	System.out.println("sendFile begin.");
+    	logger.info("sendFile begin.");
     	
         try {
         	
@@ -537,6 +592,10 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
         	System.out.println("sendFile createDate = [" + createDate + "]");
         	System.out.println( "the storage path =   [" + strDir + "]");
         	
+        	logger.info("sendFile filename =   [" + name + "]");
+        	logger.info("sendFile createDate = [" + createDate + "]");
+        	logger.info( "the storage path =   [" + strDir + "]");
+        	
             File filePath = new File( strDir + name );
             byte[] buffers = new byte[(int) filePath.length()];
 
@@ -549,6 +608,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
             dis.close();
             
             System.out.println("sendFile 2");
+            logger.info("sendFile 2");
             
             // handle file send over socket
             OutputStream os = clientSocket.getOutputStream();
@@ -562,17 +622,21 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
             dos.flush();
             
             System.out.println("File " + fileName + " sent to client.");
+            logger.info("File " + fileName + " sent to client.");
         } 
         catch( Exception e ) {
             System.err.println("File does not exist !!! = " + fileName );
+            logger.error("File does not exist !!! = " + fileName + e.getMessage());
         } 
         
         System.out.println("sendFile end.");
+        logger.info("sendFile end.");
     }
     
     private String makeLicense() {
     	
     	System.out.println("makeLicense begin.");
+    	logger.info("makeLicense begin.");
     	
     	String strLicense = "";
     	String encrypted = "";
@@ -585,7 +649,9 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
     		//NetworkInterface network = NetworkInterface.getByInetAddress(ip);
     		
     		InetAddress ip = InetAddress.getLocalHost();
-            System.out.println("Current IP address : " + ip.getHostAddress());
+            
+    		System.out.println("Current IP address : " + ip.getHostAddress());
+    		logger.info("Current IP address : " + ip.getHostAddress());
 
     		byte[] mac;//network.getHardwareAddress();
     		StringBuilder sb = new StringBuilder();
@@ -602,6 +668,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 		           }
 		           
 		           System.out.println("Current MAC address : " + sb );
+		           logger.info("Current MAC address : " + sb );
 		       }
 		    }
     		//
@@ -614,6 +681,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
 //    		}
     		
     		System.out.println("Current MAC address : " + sb.toString() );
+    		logger.info("Current MAC address : " + sb.toString() );
     		
     		strLicense = ip.getHostAddress() + DELIMITER + sb.toString() + DELIMITER + "sow4063";
     		
@@ -622,16 +690,22 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
     		
     		System.out.println("License string : " + strLicense);
     		System.out.println("Encrypted license string : " + encrypted);
+    		
+    		logger.info("License string : " + strLicense);
+    		logger.info("Encrypted license string : " + encrypted);
 
     	} 
     	catch (UnknownHostException e) {
     		e.printStackTrace();
+    		logger.error(e.getMessage());
     	} 
     	catch (SocketException e){
     		e.printStackTrace();
+    		logger.error(e.getMessage());
     	}
     	
     	System.out.println("makekLicense end.");
+    	logger.info("makekLicense end.");
     	
     	return encrypted;
     }
@@ -639,6 +713,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
     public boolean checkLicense() throws IOException {
     	
     	System.out.println("checkLicense begin.");
+    	logger.info("checkLicense begin.");
     	
     	boolean result = false;
     	
@@ -651,6 +726,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
     	File file = new File( path );
 		if( !file.exists() || !file.isFile() ) { 
 			System.out.println("The License file does not existed.[" + path + "]");
+			logger.error("The License file does not existed.[" + path + "]");
 		    return result;
 		}
     	
@@ -666,6 +742,9 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
     	System.out.println("checkLicense. made = [" + str + "]");
 		System.out.println("checkLicense. file = [" + strLicense + "]");
 		
+		logger.info("checkLicense. made = [" + str + "]");
+		logger.info("checkLicense. file = [" + strLicense + "]");
+		
     	if( str.equals(strLicense) ) {
     		result = true;
     	}
@@ -673,6 +752,7 @@ public void selectFileInfo() throws InstantiationException, IllegalAccessExcepti
     	br.close();
     	
     	System.out.println("checkLicense end. rc=[" + result + "]");
+    	logger.info("checkLicense end. rc=[" + result + "]");
     	
     	return result;
     }

@@ -24,7 +24,6 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 
-
 public class panera
 {
 	private static Socket sock;
@@ -97,7 +96,7 @@ public class panera
 			
 			String pconfig = System.getProperty("panera.config").toLowerCase();
 			
-		    if( pconfig == null) {
+		    if( pconfig == null ) {
                 System.out.println("need file path for panera.config");
 		    }
 			
@@ -159,7 +158,7 @@ public class panera
 			
 			StringBuffer sb = new StringBuffer(); 
 			
-			for(int i = 0 ; i < byteData.length ; i++){
+			for( int i = 0 ; i < byteData.length ; i++ ){
 				sb.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
 			}
 			
