@@ -16,16 +16,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 //for encrypt and decrypt
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
+import org.apache.logging.log4j.LogManager;
 
-public class panera
-{
+public class panera {
 	private static Socket sock;
 	private static PrintStream os;
 	
@@ -47,7 +45,12 @@ public class panera
     public static final String SRT_SAVEINF = "4";
     public static final String SRT_RCVINF = "5";
     
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger("panera");
+	
+    
 	public panera() throws Exception {
+		
+		logger.info("panera.constructor begin.");
 		
 		// initialize the class : read configuration.
 		readConfig();
@@ -55,7 +58,7 @@ public class panera
 		// ask file server info to agent server.
 		askFileServers();
 		
-		System.out.println("panera.constructor.");
+		logger.info("panera.constructor end.");
 		
 	}
 	
@@ -85,7 +88,7 @@ public class panera
 	
 	public int readConfig() throws IOException {
 		
-		System.out.println("readConfig begin.");
+		logger.info("readConfig begin.");
 		
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -97,10 +100,10 @@ public class panera
 			String pconfig = System.getProperty("panera.config").toLowerCase();
 			
 		    if( pconfig == null ) {
-                System.out.println("need file path for panera.config");
+                logger.info("need file path for panera.config");
 		    }
 			
-			System.out.println( strOS + " : " + pconfig );
+			logger.info( strOS + " : " + pconfig );
 					
 			input = new FileInputStream( pconfig );
 
@@ -114,37 +117,28 @@ public class panera
 			logPath = workdir + prop.getProperty("logpath") ;
 			cachePath = workdir + prop.getProperty("cachepath") ;
 			
-			System.out.println( "agent serverip = " + agentIP );
-			System.out.println( "agent serverport = " + agentPort );
-			System.out.println( "workdir = " + workdir );
-			System.out.println( "logpath = " + logPath );
-			System.out.println( "cachepath = " + cachePath );
+			logger.info( "agent serverip = " + agentIP );
+			logger.info( "agent serverport = " + agentPort );
+			logger.info( "workdir = " + workdir );
+			logger.info( "logpath = " + logPath );
+			logger.info( "cachepath = " + cachePath );
 
 		} 
 		catch( IOException ex ) {
 			ex.printStackTrace();
+			logger.error( ex.getMessage() );
 		} 
-		finally {
-			if( input != null ) {
-				try {
-					input.close();
-				} 
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
-				
-				return 0;
-			}
-			
-		}
 		
-		System.out.println("readConfig end.");
+		input.close();
+		
+		logger.info("readConfig end.");
+		
 		return 1;
 	}
 	
 	public String encryptFileName(String str) {
 		
-		System.out.println("endcryptFileName begin.");
+		logger.info("endcryptFileName begin.");
 		
 		String encrypted = ""; 
 		
@@ -168,9 +162,10 @@ public class panera
 		catch(NoSuchAlgorithmException e){
 			e.printStackTrace(); 
 			encrypted = null; 
+			logger.error( e.getMessage() );
 		}
 		
-		System.out.println("encryptFileName end.");
+		logger.info("encryptFileName end.");
 		
 		return encrypted;
 	}
@@ -195,7 +190,7 @@ public class panera
 	
 	public String checkCache( String fileName, String encryptedFileName, String createDate ) {
 		
-		System.out.println("checkCache begin.");
+		logger.info("checkCache begin.");
 		
 		//String[] arr;
 		
@@ -209,22 +204,22 @@ public class panera
 //		    for(int i = 0; i < arr.length; i++ ) {
 //		    	System.out.println(arr[i]);
 //		    }
-			System.out.println("The file is in the cache = [" + name+ "]");
+			logger.info("The file is in the cache = [" + name+ "]");
 		    
 		}
 		else {
-			System.out.println("Faile to find the file in the cache = [" + cachePath + name+ "]");
+			logger.info("Faile to find the file in the cache = [" + cachePath + name+ "]");
 			name = "";
 		}
 		
-		System.out.println("checkCache end.");
+		logger.info("checkCache end.");
 		
 		return name;
 	}
 	
 	public void saveCache( String fileName, String encryptedFileName, String createDate ) {
 		
-		System.out.println("saveCache begin.");
+		logger.info("saveCache begin.");
 		
 		String name = base64encode( serverIP + DELIMITER + serverPort + DELIMITER + fileName + DELIMITER + encryptedFileName + DELIMITER + createDate);
 		
@@ -232,34 +227,36 @@ public class panera
 
 	        File file = new File( name );
 	        
-	        System.out.println("cache info = [" + file.getAbsolutePath() + "]");
+	        logger.info("cache info = [" + file.getAbsolutePath() + "]");
 	
 	        if( file.createNewFile() ) {
-	        	System.out.println("File is created!");
+	        	logger.info("File is created!");
 	        }
 	        else {
-	        	System.out.println("File already exists");
+	        	logger.info("File already exists");
 	        }
 	        
 	        // move to the cache directory
 	        if( file.renameTo( new File( cachePath + name ) ) ) {
-     		    System.out.println("File is moved successful!! [" + name + "]");
+     		    logger.info("File is moved successful!! [" + name + "]");
      	    }
      	    else {
-     	 	    System.out.println("File is failed to move! [" + name + "]");
+     	 	    logger.info("File is failed to move! [" + name + "]");
      	    }
 		
 	    } 
 		catch (IOException e) {
 	      e.printStackTrace();
+	      logger.info( e.getMessage() );
 		}
 		
-		System.out.println("saveCache end.");
+		logger.info("saveCache end.");
+		
 	}
 	
 public String receiveFileInfo(String fileName, String createDate ) throws IOException {
 		
-		System.out.println("receiveFileInfo begin.");
+		logger.info("receiveFileInfo begin.");
 		
 		String result = "";
 		
@@ -268,7 +265,7 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 			sock = new Socket( agentIP, Integer.parseInt( agentPort ) );
 		}
 		catch(Exception e) {
-			System.err.println("Can not connect to agent server, try again later.");
+			logger.error( "Can not connect to agent server, try again later." + e.getMessage() );
 			System.exit(1);
 		}
 		
@@ -290,15 +287,15 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
             
             in.close();
             
-            System.out.println("ReceiveInfo result = [" + result + "] received from Agent Server.");
+            logger.info("ReceiveInfo result = [" + result + "] received from Agent Server.");
         } 
         catch( IOException ex ) {
-            Logger.getLogger("PaneraClient").log( Level.SEVERE, null, ex ) ;
+            logger.error( ex.getMessage() );
         }
 		
 		sock.close();
 		
-		System.out.println("receiveFileInfo end.");
+		logger.info("receiveFileInfo end.");
 		
 		return result;
 	}
@@ -306,14 +303,15 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 	
 	public void sendFileInfo(String fileName, String encryptedFileName, String createDate ) throws IOException {
 		
-		System.out.println("sendFileInfo begin.");
+		logger.info("sendFileInfo begin.");
 		
 		// establish connection to server
 		try {
 			sock = new Socket( agentIP, Integer.parseInt( agentPort ) );
 		}
 		catch(Exception e) {
-			System.err.println("Can not connect to agent server, try again later.");
+			logger.error( "Can not connect to agent server, try again later." + e.getMessage() );
+			
 			System.exit(1);
 		}
 		
@@ -335,27 +333,27 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
             
             in.close();
 
-            System.out.println("SaveInfo result = [" + result + "] received from Agent Server.");
+            logger.info("SaveInfo result = [" + result + "] received from Agent Server.");
         } 
         catch( IOException ex ) {
-            Logger.getLogger("PaneraClient").log( Level.SEVERE, null, ex ) ;
+            logger.error( ex.getMessage() );
         }
 		
 		sock.close();
 		
-		System.out.println("sendFileInfo end.");
+		logger.info("sendFileInfo end.");
 	}
 	
 	public void sendFile(String fileName) throws Exception {
 		
-		System.out.println("sendFile begin.");
+		logger.info("sendFile begin.");
 		
 		// establish connection to server
 		try {
 			sock = new Socket( serverIP, Integer.parseInt( serverPort ) );
 		}
 		catch(Exception e) {
-			System.err.println("Can not connect to server, try again later.");
+			logger.error( "Can not connect to server, try again later." + e.getMessage() );
 			System.exit(1);
 		}
 		
@@ -369,8 +367,8 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
             String name = fileName.substring(index + 1);
         	String encryptedFileName = encryptFileName( name );
         	
-        	System.out.println("encrypted file name = " + name + "[" + encryptedFileName + "]" );
-        	System.out.println("sendFile filePath = " + fileName);
+        	logger.info("encrypted file name = " + name + "[" + encryptedFileName + "]" );
+        	logger.info("sendFile filePath = " + fileName);
         	
             File filePath = new File( fileName );
             byte[] buffers = new byte[(int) filePath.length()];
@@ -383,8 +381,6 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
             dis.readFully( buffers, 0, buffers.length );
             dis.close();
             
-            System.out.println("sendFile 2");
-            
             OutputStream os = sock.getOutputStream();
 
             // Sending file name and file size to the server
@@ -395,7 +391,7 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
             dos.write( buffers, 0, buffers.length );
             dos.flush();
             
-            System.out.println("File " + fileName + " sent to Server.");
+            logger.info("File " + fileName + " sent to Server.");
             
             // Save the file info to cache
             String createDate = new SimpleDateFormat("yyyyMMdd/").format(System.currentTimeMillis( ));
@@ -403,23 +399,24 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
             
         } 
         catch( Exception e ) {
-            System.err.println("Error on sendFile " + e.getMessage() );
+            logger.error( "Error on sendFile " + e.getMessage() );
         }
         
         sock.close();
         
-        System.out.println("sendFile end.");
+        logger.info("sendFile end.");
     }
 
     public void receiveFile(String fileName) throws Exception {
     	
-    	System.out.println("receiveFile begin");
+    	logger.info("receiveFile begin");
     	
     	try {
     		sock = new Socket( serverIP, Integer.parseInt( serverPort ) );
 		}
 		catch( Exception e ) {
-			System.err.println("Can not connect to server, try again later.");
+			logger.error( "Can not connect to server, try again later." + e.getMessage() );
+			
 			System.exit(1);
 		}
 		
@@ -428,8 +425,6 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 		os.println(SRT_RECV);
 		os.println( fileName );
     	
-		System.out.println("receiveFile 1");
-		
         try {
         	
             int bytesRead;
@@ -438,8 +433,6 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 
             DataInputStream clientData = new DataInputStream( in );
             
-            System.out.println("receiveFile 3");
-
             fileName = clientData.readUTF();
             OutputStream output = new FileOutputStream( fileName );
             
@@ -450,37 +443,35 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
                 output.write( buffer, 0, bytesRead );
                 size -= bytesRead;
             }
-            
-            System.out.println("receiveFile 4");
 
             output.close();
             in.close();
 
-            System.out.println("File " + fileName + " received from File Server.");
+            logger.info("File " + fileName + " received from File Server.");
         } 
         catch( IOException ex ) {
-            Logger.getLogger("PaneraClient").log( Level.SEVERE, null, ex );
+            logger.error( ex.getMessage() );
         }
         
         sock.close();
         
-        System.out.println("receiveFile end.");
+        logger.info("receiveFile end.");
     }
     
     public void askFileServers() throws Exception {
     	
-    	System.out.println("askFileServers begin.");
+    	logger.info("askFileServers begin.");
     	
     	try {
     		sock = new Socket( agentIP, Integer.parseInt( agentPort ) );
 		}
 		catch( Exception e ) {
-			System.err.println("Can not connect to server, try again later.");
+			logger.error( "Can not connect to server, try again later." + e.getMessage() );
+			
 			System.exit(1);
 		}
 		
     	String fileName = "fileserver.config";
-    	System.out.println("askFileServers 1.");
     	
 		os = new PrintStream( sock.getOutputStream() );
 		
@@ -495,30 +486,24 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 
             DataInputStream clientData = new DataInputStream( in );
             
-            System.out.println("askFileServers 2.");
-
             fileName = clientData.readUTF();
             OutputStream output = new FileOutputStream( fileName );
             
             long size = clientData.readLong();
             byte[] buffer = new byte[1024];
             
-            System.out.println("askFileServers 3.");
-            
             while( size > 0 && ( bytesRead = clientData.read( buffer, 0, (int) Math.min( buffer.length, size ) ) ) != -1 ) {
                 output.write( buffer, 0, bytesRead );
                 size -= bytesRead;
             }
             
-            System.out.println("askFileServers 4.");
-
             output.close();
             in.close();
 
-            System.out.println("File " + fileName + " received from Server.");
+            logger.info("File " + fileName + " received from Server.");
         } 
         catch( IOException ex ) {
-            Logger.getLogger("PaneraClient").log( Level.SEVERE, null, ex ) ;
+            logger.error( ex.getMessage() );
         }
         
         sock.close();
@@ -531,13 +516,13 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
         if( isMoved )
         	setFileServers();
         
-		System.out.println("askFileServers end.");
+		logger.info("askFileServers end.");
 			
     }
     
     public int setFileServers() throws IOException {
 		
-		System.out.println("setFileServers begin.");
+		logger.info("setFileServers begin.");
 		
 		Properties prop = new Properties();
 		InputStream input = null;
@@ -555,7 +540,7 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 				pconfig = workdir + "fileserver.config";
 			}
 			
-			System.out.println( strOS + " : " + pconfig );
+			logger.info( strOS + " : " + pconfig );
 					
 			input = new FileInputStream( pconfig );
 
@@ -578,29 +563,20 @@ public String receiveFileInfo(String fileName, String createDate ) throws IOExce
 				serverIP = fileServerIP[0];
 				serverPort = fileServerPort[0];
 				
-				System.out.println("serverIP : " + serverIP );
-				System.out.println("serverPort : " + serverPort );
+				logger.info("serverIP : " + serverIP );
+				logger.info("serverPort : " + serverPort );
 			}
 
 		} 
 		catch( IOException ex ) {
 			ex.printStackTrace();
+			logger.error( ex.getMessage() );
 		} 
-		finally {
-			if( input != null ) {
-				try {
-					input.close();
-				} 
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
-				
-				return 0;
-			}
-			
-		}
 		
-		System.out.println("setFileServer end.");
+		input.close();
+		
+		logger.info("setFileServer end.");
+		
 		return 1;
 	}
     

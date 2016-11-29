@@ -33,6 +33,7 @@ public class panerasrv {
 		catch( Exception e ) {
 			System.err.println("Port already in used.");
 			logger.error("Port already in used.");
+			
 			System.exit(1);
 		}
 		
@@ -43,6 +44,7 @@ public class panerasrv {
 				clientSocket = serverSocket.accept();
 				
 				System.out.println("Accepted connection : " + clientSocket );
+				logger.info("Accepted connection : " + clientSocket );
 				
 				Thread t = new Thread( new requestHandle( clientSocket ) );
 				
